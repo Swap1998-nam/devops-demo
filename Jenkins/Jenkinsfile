@@ -2,101 +2,26 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
+        stage('CPU Info') {
             steps {
-                echo 'Cloning repository...'
-                git branch: 'main', url: 'https://github.com/your-repo/your-project.git'
+                echo 'Getting CPU info...'
+                sh 'lscpu | grep "Model name"'
+                sh 'nproc'
             }
         }
 
         stage('IP Address') {
             steps {
                 echo 'Getting IP address...'
-                sh '''
-                    echo "Server IP Address:"
-                    hostname -I
-                '''
+                sh 'hostname -I'
             }
         }
 
-        stage('Build') {
+        stage('Memory Info') {
             steps {
-                echo 'Building project...'
-                // Example for Java:
-                // sh 'mvn clean install'
-                // Example for Python:
-                // sh 'python setup.py build'
+                echo 'Getting memory info...'
+                sh 'free -h'
             }
-        }
-
-        stage('Static Code Analysis') {
-            steps {
-                echo 'Running static analysis...'
-                // Example:
-                // sh 'pylint src/'
-                // sh 'sonar-scanner'
-            }
-        }
-
-        stage('Unit Tests') {
-            steps {
-                echo 'Running unit tests...'
-                // Example:
-                // sh 'pytest tests/'
-            }
-        }
-
-        stage('Integration Tests') {
-            steps {
-                echo 'Running integration tests...'
-                // Example:
-                // sh './run_integration_tests.sh'
-            }
-        }
-
-        stage('Package') {
-            steps {
-                echo 'Packaging artifacts...'
-                // Example:
-                // sh 'tar -czf app.tar.gz build/'
-                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
-            }
-        }
-
-        stage('Deploy to Staging') {
-            steps {
-                echo 'Deploying to staging environment...'
-                // Example:
-                // sh './deploy.sh staging'
-            }
-        }
-
-        stage('Manual Approval') {
-            steps {
-                script {
-                    input(message: "Approve deployment to production?", ok: "Deploy")
-                }
-            }
-        }
-
-        stage('Deploy to Production') {
-            steps {
-                echo 'Deploying to production...'
-                // Example:
-                // sh './deploy.sh production'
-            }
-        }
-    }
-
-    post {
-        always {
-            echo 'Pipeline finished (success or failure).'
-        }
-        success {
-            echo 'Pipeline succeeded ✅'
-        }
-        failure {
-            echo 'Pipeline failed ❌'
         }
     }
 }
