@@ -1,23 +1,102 @@
-pipeline{
+pipeline {
     agent any
+
     stages {
-        stage('ip address') {
+        stage('Checkout') {
+            steps {
+                echo 'Cloning repository...'
+                git branch: 'main', url: 'https://github.com/your-repo/your-project.git'
+            }
+        }
+
+        stage('IP Address') {
             steps {
                 echo 'Getting IP address...'
                 sh '''
-                hostname -I
+                    echo "Server IP Address:"
+                    hostname -I
                 '''
             }
         }
-        stage('Test') {
+
+        stage('Build') {
             steps {
-                echo 'Testing...'
+                echo 'Building project...'
+                // Example for Java:
+                // sh 'mvn clean install'
+                // Example for Python:
+                // sh 'python setup.py build'
             }
         }
-        stage('Deploy') {
+
+        stage('Static Code Analysis') {
             steps {
-                echo 'Deploying...'
+                echo 'Running static analysis...'
+                // Example:
+                // sh 'pylint src/'
+                // sh 'sonar-scanner'
             }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                echo 'Running unit tests...'
+                // Example:
+                // sh 'pytest tests/'
+            }
+        }
+
+        stage('Integration Tests') {
+            steps {
+                echo 'Running integration tests...'
+                // Example:
+                // sh './run_integration_tests.sh'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                echo 'Packaging artifacts...'
+                // Example:
+                // sh 'tar -czf app.tar.gz build/'
+                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+            }
+        }
+
+        stage('Deploy to Staging') {
+            steps {
+                echo 'Deploying to staging environment...'
+                // Example:
+                // sh './deploy.sh staging'
+            }
+        }
+
+        stage('Manual Approval') {
+            steps {
+                script {
+                    input(message: "Approve deployment to production?", ok: "Deploy")
+                }
+            }
+        }
+
+        stage('Deploy to Production') {
+            steps {
+                echo 'Deploying to production...'
+                // Example:
+                // sh './deploy.sh production'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finished (success or failure).'
+        }
+        success {
+            echo 'Pipeline succeeded ✅'
+        }
+        failure {
+            echo 'Pipeline failed ❌'
         }
     }
 }
